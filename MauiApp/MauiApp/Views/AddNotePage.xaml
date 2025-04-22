@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:MauiApp.Models"
+             xmlns:converters="clr-namespace:MauiApp.Converters"
+             x:Class="MauiApp.Views.AddNotePage"
+             Title="Новая Заметка"
+             Shell.NavBarIsVisible="False"> <!-- Скрытие панели навигации (3 балла) -->
+
+    <!-- Привязка ViewModel (Transient, создается при переходе) -->
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <!--  <ContentPage.BindingContext> -->
+    <!--     <viewModels:AddNoteViewModel /> -->
+    <!-- </ContentPage.BindingContext> -->
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="15" Padding="20">
+
+             <Label Text="Добавление новой заметки" FontSize="Title" HorizontalOptions="Center" FontAttributes="Bold"/>
+
+             <!-- Использование разных контейнеров -->
+             <Frame Padding="10" CornerRadius="10" BorderColor="LightGray" HasShadow="True">
+                 <VerticalStackLayout Spacing="10">
+                    <Label Text="Заголовок:"/>
+                    <Entry Placeholder="Введите заголовок заметки"
+                           Text="{Binding Title}"
+                           MaxLength="100"/>
+
+                    <Label Text="Содержание:"/>
+                    <Editor Placeholder="Введите текст заметки"
+                            Text="{Binding Content}"
+                            HeightRequest="200"
+                            AutoSize="TextChanges"/>
+
+                    <Label Text="Категория:"/>
+                     <Picker Title="Выберите категорию"
+                             ItemDisplayBinding="{Binding SelectedCategory.Name}"
+                             SelectedItem="{Binding SelectedCategory}">
+                         <Picker.ItemsSource>
+                             <x:Array Type="{x:Type model:Category}">
+                                 <!-- Элементы будут загружены из ViewModel -->
+                             </x:Array>
+                         </Picker.ItemsSource>
+                     </Picker>
+                 </VerticalStackLayout>
+             </Frame>
+
+             <!-- Секция Сенсоров  -->
+             <Frame Padding="10" CornerRadius="10" BorderColor="LightGray" HasShadow="True" Margin="0,10,0,0">
+                 <VerticalStackLayout Spacing="10">
+                     <!-- Геолокация -->
+                     <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                         <Label Text="{Binding LocationText}" VerticalOptions="Center" HorizontalOptions="StartAndExpand"/>
+                         <Button Text="📍"
+                                 Command="{Binding GetLocationCommand}"
+                                 IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
+                                 FontSize="Medium"
+                                 WidthRequest="50"
+                                 ToolTipProperties.Text="Добавить текущее местоположение"/>
+
+                     </HorizontalStackLayout>
+
+                      <BoxView HeightRequest="1" Color="LightGray" Margin="0,5,0,5"/>
+
+                     <!-- Изображение -->
+                     <Label Text="Прикрепленное фото:" />
+                      <Image Source="{Binding NoteImageSource}"
+                             HeightRequest="150"
+                             Aspect="AspectFit"
+                             BackgroundColor="LightGray">
+                           <Image.GestureRecognizers>
+                                <!-- Можно добавить тап для просмотра/удаления фото -->
+                           </Image.GestureRecognizers>
+                      </Image>
+                      <Button Text="📷 Прикрепить фото"
+                              Command="{Binding AttachPhotoCommand}"
+                              IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
+                              Margin="0,5,0,0"/>
+
+                     <!-- Напоминание (пока без функционала) -->
+                      <BoxView HeightRequest="1" Color="LightGray" Margin="0,5,0,5"/>
+                      <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                            <Label Text="{Binding ReminderText}" VerticalOptions="Center" HorizontalOptions="StartAndExpand"/>
+                            <Button Text="⏰"
+                                    Command="{Binding SetReminderCommand}"
+                                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
+                                    FontSize="Medium"
+                                    WidthRequest="50"
+                                    ToolTipProperties.Text="Установить напоминание"/>
+                      </HorizontalStackLayout>
+
+                 </VerticalStackLayout>
+             </Frame>
+
+            <Button Text="Сохранить заметку"
+                    Command="{Binding SaveNoteCommand}"
+                    BackgroundColor="MediumSeaGreen"
+                    TextColor="White"
+                    CornerRadius="20"/>
+
+            <!-- Кнопка для возврата назад (альтернатива системной кнопке Назад) -->
+            <Button Text="Отмена"
+                    BackgroundColor="LightGray"
+                    TextColor="Black"
+                    CornerRadius="20"
+                    Clicked="CancelButton_Clicked"/>
+
+             <!-- Индикатор активности для загрузки категорий -->
+             <ActivityIndicator IsVisible="{Binding IsBusy}"
+                                IsRunning="{Binding IsBusy}"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Color="MediumSeaGreen"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

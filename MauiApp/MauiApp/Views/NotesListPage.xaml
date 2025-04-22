@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MauiApp.Models"
+             xmlns:viewModels="clr-namespace:MauiApp.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:converters="clr-namespace:MauiApp.Converters"
+             x:Class="MauiApp.Views.NotesListPage"
+             Title="Мои Заметки">
+
+    <!-- Привязка ViewModel -->
+    <!-- <ContentPage.BindingContext> -->
+    <!--     <viewModels:NotesViewModel /> -->
+    <!-- </ContentPage.BindingContext> -->
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:IsNotNullOrEmptyConverter x:Key="IsNotNullOrEmptyConverter" />
+            <toolkit:SelectedItemEventArgsConverter x:Key="SelectedItemConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Grid RowDefinitions="Auto, *, Auto" Padding="10">
+
+        <!-- Заголовок и кнопка добавления (Пример контейнера Grid) -->
+        <Label Grid.Row="0"
+               Text="Список Заметок"
+               FontSize="Large"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               Margin="0,0,0,10"/>
+
+        <!-- Список Заметок (ListView) -->
+        <ListView Grid.Row="1"
+                  ItemsSource="{Binding Notes}"
+                  SelectionMode="Single"
+                  HasUnevenRows="True"
+                  RefreshControlColor="DodgerBlue"
+                  IsPullToRefreshEnabled="True"
+                  RefreshCommand="{Binding LoadNotesCommand}"
+                  IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                  CachingStrategy="RecycleElement"
+                  SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+                  <!-- Behavior для передачи выбранного элемента в команду -->
+                  <ListView.Behaviors>
+                      <toolkit:EventToCommandBehavior EventName="ItemSelected"
+                                                    Command="{Binding NoteSelectedCommand}"
+                                                    EventArgsConverter="{DynamicResource SelectedItemConverter}" />
+                  </ListView.Behaviors> 
+                   <!-- Примечание: Прямая привязка команды к ItemSelected/ItemTapped требует CommunityToolkit.Maui -->
+                   <!-- Мы будем использовать команду NoteSelectedCommand при изменении свойства LastSelectedNoteId -->
+
+
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:Note">
+                    <!-- Использование различных контейнеров внутри элемента списка -->
+                    <ViewCell>
+                         <SwipeView> <!-- Добавляем возможность свайпа для удаления -->
+                              <SwipeView.RightItems>
+                                <SwipeItems Mode="Execute">
+                                    <SwipeItem Text="Удалить"
+                                               BackgroundColor="Red"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:NotesViewModel}}, Path=DeleteNoteCommand}"
+                                               CommandParameter="{Binding .}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+
+                            <!-- Основное содержимое ячейки -->
+                            <Border StrokeShape="RoundRectangle 5" Padding="10" Margin="5" StrokeThickness="1" Stroke="LightGray">
+                                <VerticalStackLayout Spacing="5">
+                                    <Label Text="{Binding Title}" FontSize="Medium" FontAttributes="Bold" />
+                                    <Label Text="{Binding Content}" FontSize="Small" MaxLines="2" LineBreakMode="TailTruncation" />
+                                    <HorizontalStackLayout Spacing="5">
+                                         <Label Text="Категория:" FontSize="Micro" FontAttributes="Italic"/>
+                                         <Label Text="{Binding CategoryName}" FontSize="Micro" FontAttributes="Italic" TextColor="Gray"/>
+                                         <!-- Показываем иконку, если есть геолокация -->
+                                         <Label Text="{Binding LocationDisplay}" FontSize="Micro" TextColor="DodgerBlue" IsVisible="{Binding Latitude.HasValue}"/>
+
+                                         <!-- Показываем иконку, если есть изображение -->
+                                         <Label Text="📷" FontSize="Micro" TextColor="Gray" IsVisible="{Binding ImagePath, Converter={StaticResource IsNotNullOrEmptyConverter}}"/>
+                                         <!-- Потребуется IsNotNullOrEmptyConverter -->
+                                         <Label Text="{Binding DateCreated, StringFormat='{0:dd.MM.yyyy HH:mm}'}" FontSize="Micro" HorizontalOptions="EndAndExpand" TextColor="DarkGray"/>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                         </SwipeView>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Индикатор активности -->
+         <ActivityIndicator Grid.Row="0" Grid.RowSpan="2"
+                           IsVisible="{Binding IsBusy}"
+                           IsRunning="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           Color="DodgerBlue"/>
+
+
+        
+
+        <!-- Пример Адаптивного дизайна: изменение текста кнопки в зависимости от ширины -->
+        <!-- (3 балла - Адаптивный дизайн ИЛИ Анимация) -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup Name="AdaptiveStates">
+                 <VisualState Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter TargetName="AddButton" Property="Button.Text" Value="+ Добавить"/>
+                        <!-- Можно менять и другие свойства: Margin, FontSize и т.д. -->
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="600" />
+                    </VisualState.StateTriggers>
+                     <VisualState.Setters>
+                         <Setter TargetName="AddButton" Property="Button.Text" Value="Добавить новую заметку"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+         <!-- Присваиваем имя кнопке для работы с VisualStateManager -->
+        <Button x:Name="AddButton"
+                Grid.Row="2"
+                Text="Добавить новую заметку" 
+                Command="{Binding AddNoteCommand}"
+                Margin="0,10,0,0"
+                BackgroundColor="DodgerBlue"
+                TextColor="White"
+                CornerRadius="20"/>
+
+
+    </Grid>
+</ContentPage>
