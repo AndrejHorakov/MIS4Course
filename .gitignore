@@ -159,7 +159,6 @@ mongo-data/
 
 bin/
 obj/
-data/
 *.mp3
 *.user
 *.rar
