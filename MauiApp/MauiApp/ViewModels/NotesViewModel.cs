@@ -58,8 +58,6 @@ public class NotesViewModel : BaseViewModel
 
         async Task ExecuteLoadNotesCommand()
         {
-            if (IsBusy) return;
-            IsBusy = true;
 
             try
             {

@@ -10,9 +10,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Devices.Sensors;
 using Microsoft.Maui.Hosting;
+using Microsoft.Maui.LifecycleEvents;
 using Microsoft.Maui.Media;
 using Microsoft.Maui.Storage;
 using Plugin.LocalNotification;
+using Plugin.LocalNotification.AndroidOption;
 
 namespace MauiApp
 {

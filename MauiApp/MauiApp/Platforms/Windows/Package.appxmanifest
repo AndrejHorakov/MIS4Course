@@ -44,6 +44,7 @@
     <DeviceCapability Name="location"/>
     <DeviceCapability Name="webcam"/>
     <uap:Capability Name="picturesLibrary"/>
+    <rescap:Capability Name="toastNotification"/>
   </Capabilities>
 
 </Package>

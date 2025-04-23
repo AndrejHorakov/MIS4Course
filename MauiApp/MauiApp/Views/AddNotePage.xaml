@@ -39,13 +39,9 @@
 
                     <Label Text="Категория:"/>
                      <Picker Title="Выберите категорию"
-                             ItemDisplayBinding="{Binding SelectedCategory.Name}"
-                             SelectedItem="{Binding SelectedCategory}">
-                         <Picker.ItemsSource>
-                             <x:Array Type="{x:Type model:Category}">
-                                 <!-- Элементы будут загружены из ViewModel -->
-                             </x:Array>
-                         </Picker.ItemsSource>
+                             ItemDisplayBinding="{Binding Name}"
+                             SelectedItem="{Binding SelectedCategory}"
+                             ItemsSource ="{Binding CategoriesSource}">
                      </Picker>
                  </VerticalStackLayout>
              </Frame>

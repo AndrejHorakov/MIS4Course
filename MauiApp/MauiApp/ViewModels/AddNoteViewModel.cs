@@ -17,7 +17,9 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Devices;
 using Microsoft.Maui.Media; // Для CancellationToken
 using Plugin.LocalNotification; // Для уведомлений
-using Plugin.LocalNotification.EventArgs; // Для ActionTapped
+using Plugin.LocalNotification.EventArgs;
+using System.Runtime.InteropServices;
+using Plugin.LocalNotification.AndroidOption; // Для ActionTapped
 
 namespace MauiApp.ViewModels
 {
@@ -95,7 +97,7 @@ namespace MauiApp.ViewModels
             _mediaPicker = mediaPicker; // Сохраняем сервис медиапикера
 
             SaveNoteCommand = new Command(async () => await ExecuteSaveNoteCommand(), CanExecuteSaveNoteCommand);
-            LoadCategoriesCommand = new Command(async () => await ExecuteLoadCategoriesCommand());
+            LoadCategoriesCommand = new Command(async () => await ExecuteLoadCategoriesCommand(), () => !IsBusy);
             SetReminderCommand = new Command(ExecuteSetReminderCommand, () => !IsBusy); // Инициализация команды
             
             GetLocationCommand = new Command(async () => await ExecuteGetLocationCommand(), () => !IsBusy);
@@ -119,12 +121,7 @@ namespace MauiApp.ViewModels
 
                 // Запланируем уведомление (лучше делать ПОСЛЕ сохранения заметки, чтобы иметь ID)
                 // Но для демонстрации можно и здесь.
-                if (!string.IsNullOrWhiteSpace(Title)) // Требуем хотя бы заголовок
-                {
-                    await ScheduleNotification(0, Title, Content ?? "Напоминание по заметке", ReminderTime.Value);
-                    await Application.Current.MainPage.DisplayAlert("Успех", $"Напоминание установлено на {ReminderTime:g}", "OK");
-                }
-                else
+                if (string.IsNullOrWhiteSpace(Title)) // Требуем хотя бы заголовок
                 {
                     await Application.Current.MainPage.DisplayAlert("Ошибка", "Введите заголовок для установки напоминания.", "OK");
                     ReminderTime = null; // Сбрасываем, если не удалось
@@ -147,29 +144,44 @@ namespace MauiApp.ViewModels
             }
 
 
-            var notification = new NotificationRequest
-            {
-                NotificationId = noteId == 0 ? Random.Shared.Next(1000, 9999) : noteId, // Используем ID заметки или случайный ID
-                Title = title,
-                Subtitle = "Напоминание",
-                Description = message,
-                BadgeNumber = 1,
-                Schedule =
+            try {
+                var notification = new NotificationRequest
                 {
-                    NotifyTime = notifyTime // Устанавливаем время срабатывания
-                    // Можно настроить повторяющиеся уведомления NotifyRepeatInterval и т.д.
-                },
-                Android = // Настройки специфичные для Android
-                {
-                    ChannelId = "note_reminders", // ID канала (важно для Android 8+)
-                    // IconSmallName = new AndroidIcon("ic_notification"), // Имя иконки из ресурсов drawable
-                },
-                // Добавляем данные, чтобы знать, какую заметку открыть при тапе
-                ReturningData = noteId.ToString() // Передаем ID заметки как строку
-            };
+                    NotificationId = noteId == 0 ? Random.Shared.Next(1000, 9999) : noteId, // Используем ID заметки или случайный ID
+                    Title = title,
+                    Subtitle = "Напоминание",
+                    Description = message,
+                    BadgeNumber = 1,
+                    Schedule =
+                    {
+                        NotifyTime = notifyTime // Устанавливаем время срабатывания
+                        // Можно настроить повторяющиеся уведомления NotifyRepeatInterval и т.д.
+                    },
+                    Android = // Настройки специфичные для Android
+                    {
+                        ChannelId = "note_reminders", // ID канала (важно для Android 8+)
+                        IconSmallName = new AndroidIcon("ic_notification"), // Имя иконки из ресурсов drawable
+                    },
+                    // Добавляем данные, чтобы знать, какую заметку открыть при тапе
 
-            await LocalNotificationCenter.Current.Show(notification);
-            System.Diagnostics.Debug.WriteLine($"Notification scheduled: ID {notification.NotificationId} for {notifyTime}");
+                };
+                
+
+                await LocalNotificationCenter.Current.Show(notification);
+                System.Diagnostics.Debug.WriteLine($"Notification scheduled: ID {notification.NotificationId} for {notifyTime}");
+                await Application.Current!.MainPage!.DisplayAlert("Успех", $"Напоминание установлено на {ReminderTime:g}", "OK");
+            }
+            catch (COMException ex) when (ex.HResult == -2147023728) // HRESULT для "Элемент не найден"
+            {
+                // Обработка ошибки отсутствия элемента
+                Console.WriteLine("Ошибка уведомления: элемент не найден. Проверьте настройки Windows");
+                await Shell.Current.DisplayAlert("Ошибка", "Не удалось создать уведомление", "OK");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка уведомления: {ex.Message}");
+                await Shell.Current.DisplayAlert("Ошибка", ex.Message, "OK");
+            }
         }
 
         async Task ExecuteGetLocationCommand()

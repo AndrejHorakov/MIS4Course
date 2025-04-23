@@ -80,4 +80,8 @@
 	  <PackageReference Include="Xamarin.AndroidX.Navigation.UI.Ktx" Version="2.8.8" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Platforms\Android\Resources\drawable\" />
+	</ItemGroup>
+
 </Project>
