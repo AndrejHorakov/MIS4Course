@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using MauiApp.Data;
 using MauiApp.Interfaces;
 using MauiApp.Models;
 using MauiApp.Views;
-using Microsoft.Maui.Controls;
 
 namespace MauiApp.ViewModels;
 
@@ -50,7 +46,7 @@ public class NotesViewModel : BaseViewModel
             LoadNotesCommand = new Command(async () => await ExecuteLoadNotesCommand());
             AddNoteCommand = new Command(async () => await GoToAddNotePage());
             DeleteNoteCommand = new Command<Note>(async note => await ExecuteDeleteNoteCommand(note));
-            NoteSelectedCommand = new Command<Note>(ExecuteNoteSelectedCommand);
+            NoteSelectedCommand = new Command<Note>(async note => await ExecuteNoteSelectedCommand(note));
             SaveStateCommand = new Command(ExecuteSaveStateCommand);
 
             LoadState(); // Загрузка состояния (без изменений)
@@ -58,7 +54,6 @@ public class NotesViewModel : BaseViewModel
 
         async Task ExecuteLoadNotesCommand()
         {
-
             try
             {
                 Notes.Clear();
@@ -107,13 +102,18 @@ public class NotesViewModel : BaseViewModel
             }
         }
 
-        void ExecuteNoteSelectedCommand(Note note)
+        async Task ExecuteNoteSelectedCommand(Note note)
         {
-             if (note != null)
-             {
-                 LastSelectedNoteId = note.Id;
-                 System.Diagnostics.Debug.WriteLine($"Note selected: ID {note.Id}");
-             }
+            if (note == null)
+                return;
+
+            // Переход на страницу редактирования с передачей ID
+            // Используем nameof для безопасности типов и QueryProperty
+            await Shell.Current.GoToAsync($"{nameof(EditNotePage)}?{nameof(EditNoteViewModel.NoteId)}={note.Id}");
+
+            // Сбрасываем выбор в ListView после перехода (необязательно, но улучшает UX)
+            // Это сработает, если SelectedItem привязан в XAML с Mode=TwoWay
+            LastSelectedNoteId = -1;
         }
 
         // --- State Management --- (3 балла)

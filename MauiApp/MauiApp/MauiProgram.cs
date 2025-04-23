@@ -1,20 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
 using MauiApp.Data;
 using MauiApp.Interfaces;
 using MauiApp.ViewModels;
 using MauiApp.Views;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Controls.Hosting;
-using Microsoft.Maui.Devices.Sensors;
-using Microsoft.Maui.Hosting;
-using Microsoft.Maui.LifecycleEvents;
-using Microsoft.Maui.Media;
-using Microsoft.Maui.Storage;
 using Plugin.LocalNotification;
-using Plugin.LocalNotification.AndroidOption;
 
 namespace MauiApp
 {
@@ -42,9 +32,11 @@ namespace MauiApp
             // Регистрация ViewModels и Pages
             builder.Services.AddSingleton<NotesViewModel>();
             builder.Services.AddTransient<AddNoteViewModel>();
+            builder.Services.AddTransient<EditNoteViewModel>();
 
             builder.Services.AddSingleton<NotesListPage>();
             builder.Services.AddTransient<AddNotePage>();
+            builder.Services.AddTransient<EditNotePage>(); 
 
             // Регистрация сервисов для сенсоров (будет добавлено ниже)
             builder.Services.AddSingleton(Geolocation.Default);
