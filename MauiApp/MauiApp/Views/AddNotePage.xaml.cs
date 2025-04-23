@@ -1,6 +1,4 @@
-﻿using System;
-using MauiApp.ViewModels;
-using Microsoft.Maui.Controls;
+﻿using MauiApp.ViewModels;
 
 namespace MauiApp.Views
 {

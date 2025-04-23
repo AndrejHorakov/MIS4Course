@@ -1,20 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
+using Firebase.Database;
 using MauiApp.Data;
 using MauiApp.Interfaces;
 using MauiApp.ViewModels;
 using MauiApp.Views;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Controls.Hosting;
-using Microsoft.Maui.Devices.Sensors;
-using Microsoft.Maui.Hosting;
-using Microsoft.Maui.LifecycleEvents;
-using Microsoft.Maui.Media;
-using Microsoft.Maui.Storage;
 using Plugin.LocalNotification;
-using Plugin.LocalNotification.AndroidOption;
 
 namespace MauiApp
 {
@@ -51,6 +42,17 @@ namespace MauiApp
             builder.Services.AddSingleton(MediaPicker.Default);
             builder.Services.AddSingleton(FilePicker.Default); // Может понадобиться для выбора фото
             builder.Services.AddSingleton(FileSystem.Current); // Для работы с файлами
+            builder.Services.AddSingleton<FirebaseClient>(_ => new FirebaseClient("https://notes-d6236.firebaseio.com"));
+            builder.Services.AddSingleton((Func<IServiceProvider, IFirebaseService>)(serviceProvider =>
+            {
+            #if WINDOWS
+                return new FirebaseWindowsService();
+            #elif ANDROID
+                return new FirebaseAndroidService();
+            #else
+                throw new PlatformNotSupportedException("Firebase service is not supported on this platform.");
+            #endif
+            }));
             
 
             var app = builder.Build();

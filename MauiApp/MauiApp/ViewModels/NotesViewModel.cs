@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using MauiApp.Data;
 using MauiApp.Interfaces;
 using MauiApp.Models;
 using MauiApp.Views;
-using Microsoft.Maui.Controls;
 
 namespace MauiApp.ViewModels;
 
 public class NotesViewModel : BaseViewModel
     {
         private readonly IDataService _dataService; // Внедряем зависимость через интерфейс
+        private readonly IFirebaseService _firebaseService;
         public ObservableCollection<Note> Notes { get; }
         public ICommand LoadNotesCommand { get; }
         public ICommand AddNoteCommand { get; }
@@ -42,9 +40,11 @@ public class NotesViewModel : BaseViewModel
         public ICommand SaveStateCommand { get; }
 
 
-        public NotesViewModel(IDataService dataService) // Конструктор принимает IDataService
+        public NotesViewModel(IDataService dataService, 
+        IFirebaseService firebaseWindowsService) // Конструктор принимает IDataService
         {
             _dataService = dataService; // Сохраняем сервис
+            _firebaseService = firebaseWindowsService;
 
             Notes = new ObservableCollection<Note>();
             LoadNotesCommand = new Command(async () => await ExecuteLoadNotesCommand());
@@ -64,6 +64,7 @@ public class NotesViewModel : BaseViewModel
                 Notes.Clear();
                 // Используем внедренный сервис
                 var notesList = await _dataService.GetNotesWithCategoryAsync();
+                // var notesList = await _firebaseService.GetNotesAsync();
                 foreach (var note in notesList)
                 {
                     Notes.Add(note);
@@ -103,6 +104,15 @@ public class NotesViewModel : BaseViewModel
             {
                 await _dataService.DeleteNoteAsync(note); // Используем сервис
                 Notes.Remove(note);
+
+                var documentNote = await _firebaseService.GetNoteByIdAsync(note.Id);
+
+                if(documentNote != null)
+                {    
+                    await _firebaseService.DeleteNoteAsync(documentNote.DocumentId);
+                }
+
+
                 if (LastSelectedNoteId == note.Id) LastSelectedNoteId = -1;
             }
         }

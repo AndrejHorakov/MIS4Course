@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "222391949516",
+    "project_id": "notes-d6236",
+    "storage_bucket": "notes-d6236.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222391949516:android:d12d82e1e7b1aec7e44a69",
+        "android_client_info": {
+          "package_name": "com.companyname.mauiapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp2AAtpNSCG7b8a3IaNPHI049JpXzczyc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

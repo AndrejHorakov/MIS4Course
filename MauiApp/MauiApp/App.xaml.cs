@@ -1,10 +1,6 @@
-﻿using System;
-using MauiApp.Models;
+﻿using MauiApp.Models;
 using Plugin.LocalNotification;
 using Plugin.LocalNotification.EventArgs; // Для ActionTapped
-using MauiApp.Views;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls; // Для навигации
 
 namespace MauiApp;
 

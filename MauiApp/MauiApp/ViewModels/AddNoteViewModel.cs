@@ -1,31 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using MauiApp.Interfaces;
 using MauiApp.Models;
-using Microsoft.Maui.Devices.Sensors; // Для геолокации
-using Microsoft.Maui.Storage; // Для камеры
-using Microsoft.Maui.Devices.Sensors;
-using Microsoft.Maui.Storage;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Devices;
-using Microsoft.Maui.Media; // Для CancellationToken
 using Plugin.LocalNotification; // Для уведомлений
-using Plugin.LocalNotification.EventArgs;
 using System.Runtime.InteropServices;
-using Plugin.LocalNotification.AndroidOption; // Для ActionTapped
+using Plugin.LocalNotification.AndroidOption;
+using MauiApp.Data; // Для ActionTapped
 
 namespace MauiApp.ViewModels
 {
     public class AddNoteViewModel : BaseViewModel
     {
         private readonly IDataService _dataService; // Внедряем зависимость
+        private readonly IFirebaseService _firebaseService; // зависимость
         private readonly IGeolocation _geolocation; // Для геолокации
         private readonly IMediaPicker _mediaPicker; // Для камеры
         private readonly IFileSystem _fileSystem; // Внедряем зависимость
@@ -89,12 +76,13 @@ namespace MauiApp.ViewModels
         public ICommand SetReminderCommand { get; } // Новая команда
 
         public AddNoteViewModel(IDataService dataService, IGeolocation geolocation, IMediaPicker mediaPicker,
-            IFileSystem fileSystem)
+            IFileSystem fileSystem, IFirebaseService firebaseService)
         {
             _dataService = dataService;
             _fileSystem = fileSystem; // Сохраняем fileSystem
             _geolocation = geolocation; // Сохраняем сервис геолокации
             _mediaPicker = mediaPicker; // Сохраняем сервис медиапикера
+            _firebaseService = firebaseService; // Сохраняем сервис firebase
 
             SaveNoteCommand = new Command(async () => await ExecuteSaveNoteCommand(), CanExecuteSaveNoteCommand);
             LoadCategoriesCommand = new Command(async () => await ExecuteLoadCategoriesCommand(), () => !IsBusy);
@@ -365,7 +353,7 @@ namespace MauiApp.ViewModels
                  CategoriesSource.Clear();
                  foreach(var cat in categoriesList) { CategoriesSource.Add(cat); }
                  SelectedCategory = CategoriesSource.FirstOrDefault();
-             }
+             }  
              catch(Exception ex)
              {
                  System.Diagnostics.Debug.WriteLine($"Error loading categories: {ex.Message}");
@@ -398,7 +386,17 @@ namespace MauiApp.ViewModels
             };
 
             // Сначала сохраняем, чтобы получить ID (если это новая заметка)
-            await _dataService.SaveNoteAsync(newNote); // Получаем реальный ID
+            var id = await _dataService.SaveNoteAsync(newNote); // Получаем реальный ID
+            
+            var firebaseNote = await _firebaseService.GetNoteByIdAsync(id);
+            if(firebaseNote == null)
+            {
+                await _firebaseService.AddNoteAsync(newNote);
+            }
+            else
+            {
+                await _firebaseService.UpdateNoteAsync(firebaseNote.DocumentId, newNote);
+            }
 
             // Если было установлено время напоминания, ПЕРЕпланируем уведомление с правильным ID
             if (ReminderTime.HasValue && newNote.Id > 0)

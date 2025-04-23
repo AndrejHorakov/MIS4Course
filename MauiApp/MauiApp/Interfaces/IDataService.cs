@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using MauiApp.Models;
+﻿using MauiApp.Models;
 
 namespace MauiApp.Interfaces
 {
