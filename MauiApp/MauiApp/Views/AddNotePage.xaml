@@ -23,6 +23,9 @@
         <VerticalStackLayout Spacing="15" Padding="20">
 
              <Label Text="Добавление новой заметки" FontSize="Title" HorizontalOptions="Center" FontAttributes="Bold"/>
+             <Label Text="{Binding ShakeStatusMessage}"
+                    HorizontalOptions="Center"
+                    Margin="0,10,0,0"/>
 
              <!-- Использование разных контейнеров -->
              <Frame Padding="10" CornerRadius="10" BorderColor="LightGray" HasShadow="True">

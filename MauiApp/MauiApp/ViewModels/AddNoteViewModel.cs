@@ -82,6 +82,18 @@ namespace MauiApp.ViewModels
             ? $"⏰ {ReminderTime:g}" 
             : "Напоминание не установлено";
         
+        // --- НОВОЕ: Свойство для статуса встряхивания ---
+        private string _shakeStatusMessage = "Встряхните для очистки полей";
+        public string ShakeStatusMessage
+        {
+            get => _shakeStatusMessage;
+            // Используйте [ObservableProperty] или set с OnPropertyChanged()
+            set => _shakeStatusMessage= value; // Пример с SetProperty из BaseViewModel/ObservableObject
+        }
+
+        // --- НОВОЕ: Команда, вызываемая при встряхивании ---
+        public ICommand ShakeDetectedCommand { get; }
+        
         public ICommand SaveNoteCommand { get; }
         public ICommand LoadCategoriesCommand { get; }
         public ICommand GetLocationCommand { get; } // Новая команда
@@ -102,8 +114,35 @@ namespace MauiApp.ViewModels
             
             GetLocationCommand = new Command(async () => await ExecuteGetLocationCommand(), () => !IsBusy);
             AttachPhotoCommand = new Command(async () => await ExecuteAttachPhotoCommand(), () => !IsBusy);
-
+            ShakeDetectedCommand = new Command(HandleShakeDetected);
             LoadCategoriesCommand.Execute(null);
+        }
+        
+        private void HandleShakeDetected()
+        {
+            if (IsBusy) return; // Не реагируем, если заняты другим процессом
+
+            // Логика реакции на встряхивание:
+            ShakeStatusMessage = $"Поля очищены в {DateTime.Now:T}!";
+
+            // Очистка полей (пример)
+            Title = string.Empty;
+            Content = string.Empty;
+            Latitude = null;
+            Longitude = null;
+            NoteImageSource = null;
+            ReminderTime = null;
+            // Сбросьте другие нужные поля, если необходимо
+
+            // Можно вернуть сообщение обратно через некоторое время
+            Task.Delay(2500).ContinueWith(_ =>
+            {
+                // Проверяем, не изменилось ли сообщение за это время
+                if (ShakeStatusMessage.StartsWith("Поля очищены"))
+                {
+                    ShakeStatusMessage = "Встряхните для очистки полей";
+                }
+            });
         }
         
         // --- Реализация команды Напоминания ---
