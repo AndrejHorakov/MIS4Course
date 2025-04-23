@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp.Views.AboutPage"
+             Title="О приложении">
+
+    <VerticalStackLayout Spacing="15" Padding="30" VerticalOptions="Center">
+        <Label
+            Text="Заметки MAUI"
+            FontSize="Header"
+            FontAttributes="Bold"
+            HorizontalOptions="Center" />
+        <Label
+            Text="Это простое приложение для заметок, созданное с помощью .NET MAUI."
+            FontSize="Body"
+            HorizontalOptions="Center" />
+        <Label
+            Text="Версия 1.0"
+            FontSize="Caption"
+            HorizontalOptions="Center" />
+    </VerticalStackLayout>
+
+</ContentPage>

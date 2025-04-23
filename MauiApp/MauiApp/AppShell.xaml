@@ -10,9 +10,17 @@
     <!-- Регистрация маршрута для страницы добавления заметки -->
     <!-- На этой странице панель навигации будет видна по умолчанию -->
     <!-- Мы скроем ее на самой странице AddNotePage.xaml -->
-    <ShellContent
-        Title="Главная"
-        ContentTemplate="{DataTemplate views:NotesListPage}" 
-        Route="NotesListPage" /> <!-- УНИКАЛЬНЫЙ МАРШРУТ -->
 
+    <!-- Ваш существующий элемент для списка заметок (пример) -->
+    <TabBar>
+        <ShellContent
+            Title="Мои Заметки"
+            ContentTemplate="{DataTemplate views:NotesListPage}"
+            Route="NotesListPage" />
+        <ShellContent
+            Title="О приложении"                 
+            Icon="icon_about.png"                 
+            ContentTemplate="{DataTemplate views:AboutPage}" 
+            Route="AboutPage" />                  <!-- Уникальное имя маршрута для навигации -->
+    </TabBar>
 </Shell>

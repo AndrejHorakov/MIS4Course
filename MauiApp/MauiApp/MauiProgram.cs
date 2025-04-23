@@ -1,5 +1,8 @@
 ﻿using CommunityToolkit.Maui;
+<<<<<<< HEAD
 using Firebase.Database;
+=======
+>>>>>>> d863b663ebd61760cd6235678d15e6b6454a4833
 using MauiApp.Data;
 using MauiApp.Interfaces;
 using MauiApp.ViewModels;
@@ -33,9 +36,11 @@ namespace MauiApp
             // Регистрация ViewModels и Pages
             builder.Services.AddSingleton<NotesViewModel>();
             builder.Services.AddTransient<AddNoteViewModel>();
+            builder.Services.AddTransient<EditNoteViewModel>();
 
             builder.Services.AddSingleton<NotesListPage>();
             builder.Services.AddTransient<AddNotePage>();
+            builder.Services.AddTransient<EditNotePage>(); 
 
             // Регистрация сервисов для сенсоров (будет добавлено ниже)
             builder.Services.AddSingleton(Geolocation.Default);

@@ -11,8 +11,9 @@ namespace MauiApp
 
             // Регистрация маршрутов для навигации
             RegisterRoute(nameof(AddNotePage), typeof(AddNotePage));
-            // Если бы была страница деталей:
-            // Routing.RegisterRoute(nameof(NoteDetailPage), typeof(NoteDetailPage));
+            RegisterRoute(nameof(AddNotePage), typeof(AddNotePage));
+            RegisterRoute(nameof(EditNotePage), typeof(EditNotePage));
+            RegisterRoute(nameof(AboutPage), typeof(AboutPage));
         }
     }
 }

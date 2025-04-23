@@ -43,8 +43,8 @@
                   <!-- Behavior для передачи выбранного элемента в команду -->
                   <ListView.Behaviors>
                       <toolkit:EventToCommandBehavior EventName="ItemSelected"
-                                                    Command="{Binding NoteSelectedCommand}"
-                                                    EventArgsConverter="{DynamicResource SelectedItemConverter}" />
+                                                      Command="{Binding NoteSelectedCommand}" 
+                                                      EventArgsConverter="{StaticResource SelectedItemConverter}" />
                   </ListView.Behaviors> 
                    <!-- Примечание: Прямая привязка команды к ItemSelected/ItemTapped требует CommunityToolkit.Maui -->
                    <!-- Мы будем использовать команду NoteSelectedCommand при изменении свойства LastSelectedNoteId -->
